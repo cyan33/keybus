@@ -1,0 +1,28 @@
+{
+  "name": "keybus",
+  "version": "0.0.1",
+  "description": "Support simultaneous multi-keypress handler. Especially useful in game development on browser.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thomasyimgit/keybus"
+  },
+  "keywords": [
+    "multiple",
+    "key",
+    "keydown",
+    "game",
+    "canvas",
+    "html5",
+    "simultaneous"
+  ],
+  "author": "Chang Yan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/thomasyimgit/keybus"
+  },
+  "homepage": "https://github.com/thomasyimgit/keybus#readme"
+}
