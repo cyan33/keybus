@@ -25,11 +25,19 @@ class KeyBus {
       throw Error('multikey handlers should not use the "on" method of KeyBus')
       return
     }
-    this.target.addEventListener('keydown', cb.bind(cb))
+
+    function keydownHandler(e) {
+      if (e.keyCode === keyCode) {
+        e.preventDefault()
+        cb()
+      }
+    }
+
+    this.target.addEventListener('keydown', keydownHandler)
     
     return {
       remove() {
-        this.target.removeEventListener('keydown', cb)
+        this.target.removeEventListener('keydown', keydownHandler)
       }
     }
   }
@@ -39,11 +47,19 @@ class KeyBus {
       throw Error('multikey handlers should not use the "on" method of KeyBus')
       return
     }
-    this.target.addEventListener('keyup', cb.bind(cb))
+
+    function keyupHandler(e) {
+      if (e.keyCode === keyCode) {
+        e.preventDefault()
+        cb()
+      }
+    }
+
+    this.target.addEventListener('keyup', keyupHandler)
 
     return {
       remove() {
-        this.target.removeEventListener('keydown', cb)
+        this.target.removeEventListener('keydown', keyupHandler)
       }
     }
   }
@@ -52,16 +68,26 @@ class KeyBus {
     this.simulDownListeners[keyCode] ? this.simulDownListeners[keyCode] = [cb] 
       : this.simulDownListeners[keyCode].push(cb)
 
-    this.target.addEventListener('keydown', (e) => {
-      if (e.keyCode === keyCode) this.keyhash[keyCode] = true
-    })
-    this.target.addEventListener('keyup', (e) => {
-      if (e.keyCode === keyCode) this.keyhash[keyCode] = false
-    })
+    function updateKeyhash(e, val) {
+      if (e.keyCode === keyCode) {
+        e.preventDefault()
+        this.keyhash[keyCode] = val
+      }
+    }
+
+    const keydownUpdate = (e) => updateKeyhash(e, true)
+    const keyupUpdate = (e) => updateKeyhash(e, false)
+
+
+    this.target.addEventListener('keydown', keydownUpdate)
+    this.target.addEventListener('keyup', keyupUpdate)
 
     return {
       remove() {
         this.simulDownListeners[keyCode].splice(this.simulDownListeners[keyCode].indexOf(cb), 1)
+
+        this.target.removeEventListener('keydown', keydownUpdate)
+        this.target.removeEventListener('keyup', keyupUpdate)
       }
     }
   }
