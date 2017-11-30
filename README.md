@@ -4,7 +4,7 @@
 ## Installation
 
 ```sh
-npm install keybus
+npm install --save keybus
 ```
 
 ## Basics Handler
