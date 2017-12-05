@@ -1,49 +1,50 @@
-class KeyBus {
-  constructor(target) {
-    this.target = target
-    this.enableMultiKey = false
+function createKeyBus(target) {
+  const simulDownListeners = {}
+  let enableMultiKey = false
+  const keyhash = null
 
-    this.simulDownListeners = {}
+  if (!target instanceof HTMLElement) {
+    throw Error('KeyBus: target must be a DOM element.')
   }
 
-  enableMultiKey() {
-    this.enableMultiKey = true
-    this.keyhash = {}
+  function enableMultiKey() {
+    enableMultiKey = true
+    keyhash = {}
   }
 
-  disableMultiKey() {
-    this.enableMultiKey = false
-    this.keyhash = null
+  function disableMultiKey() {
+    enableMultiKey = false
+    keyhash = null
   }
 
-  getKeyhash() {
-    return this.enableMultiKey ? this.keyhash : null
+  function getKeyhash() {
+    return enableMultiKey ? keyhash : null
   }
 
-  down(keyCode, cb) {
-    if (this.enableMultiKey) {
-      throw Error('multikey handlers should not use the "on" method of KeyBus')
+  function down(keyCode, cb) {
+    if (enableMultiKey) {
+      throw Error('multikey handlers should not use the "down" method of KeyBus')
       return
     }
 
     function keydownHandler(e) {
       if (e.keyCode === keyCode) {
         e.preventDefault()
-        cb()
+        cb(e)
       }
     }
 
-    this.target.addEventListener('keydown', keydownHandler)
+    target.addEventListener('keydown', keydownHandler)
     
     return {
       remove() {
-        this.target.removeEventListener('keydown', keydownHandler)
+        target.removeEventListener('keydown', keydownHandler)
       }
     }
   }
 
   up(keyCode, cb) {
-    if (this.enableMultiKey) {
+    if (enableMultiKey) {
       throw Error('multikey handlers should not use the "on" method of KeyBus')
       return
     }
@@ -51,27 +52,27 @@ class KeyBus {
     function keyupHandler(e) {
       if (e.keyCode === keyCode) {
         e.preventDefault()
-        cb()
+        cb(e)
       }
     }
 
-    this.target.addEventListener('keyup', keyupHandler)
+    target.addEventListener('keyup', keyupHandler)
 
     return {
       remove() {
-        this.target.removeEventListener('keydown', keyupHandler)
+        target.removeEventListener('keyup', keyupHandler)
       }
     }
   }
 
-  simulDown(keyCode, cb) {
-    this.simulDownListeners[keyCode] ? this.simulDownListeners[keyCode] = [cb] 
-      : this.simulDownListeners[keyCode].push(cb)
+  function simulDown(keyCode, cb) {
+    simulDownListeners[keyCode] ? simulDownListeners[keyCode] = [cb] 
+      : simulDownListeners[keyCode].push(cb)
 
     function updateKeyhash(e, val) {
       if (e.keyCode === keyCode) {
         e.preventDefault()
-        this.keyhash[keyCode] = val
+        keyhash[keyCode] = val
       }
     }
 
@@ -79,23 +80,23 @@ class KeyBus {
     const keyupUpdate = (e) => updateKeyhash(e, false)
 
 
-    this.target.addEventListener('keydown', keydownUpdate)
-    this.target.addEventListener('keyup', keyupUpdate)
+    target.addEventListener('keydown', keydownUpdate)
+    target.addEventListener('keyup', keyupUpdate)
 
     return {
       remove() {
-        this.simulDownListeners[keyCode].splice(this.simulDownListeners[keyCode].indexOf(cb), 1)
+        simulDownListeners[keyCode].splice(simulDownListeners[keyCode].indexOf(cb), 1)
 
-        this.target.removeEventListener('keydown', keydownUpdate)
-        this.target.removeEventListener('keyup', keyupUpdate)
+        target.removeEventListener('keydown', keydownUpdate)
+        target.removeEventListener('keyup', keyupUpdate)
       }
     }
   }
 
-  executeMultiKeyHandlers() {
-    for (let key in this.simulDownListeners) {
-      if (this.keyhash[key]) {
-        this.simulDownListeners[key].forEach(cb => {
+  function executeMultiKeyHandlers() {
+    for (let key in simulDownListeners) {
+      if (keyhash[key]) {
+        simulDownListeners[key].forEach(cb => {
           cb()
         })
       }
@@ -103,4 +104,4 @@ class KeyBus {
   }
 }
 
-module.exports = KeyBus
+module.exports = createKeyBus

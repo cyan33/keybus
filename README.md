@@ -1,5 +1,5 @@
 # KeyBus
-:snowboarder: Support simultaneous multi-keypress handler. Especially useful in canvas game development on web browser.
+:snowboarder: Support simultaneous multi-keypress handler. Especially useful in canvas game development on web browser. Also the standalone keyboard I/O component in the canvas game engine [Zion](https://github.com/thomasyimgit/Zion).
 
 ## Installation
 
@@ -12,14 +12,14 @@ npm install --save keybus
 The basic key handler serves exactly like what the browser native API supports:
 
 ```js
-import KeyBus from 'keybus'
+import createKeyBus from 'keybus';
+// pass in the dom element that you want the event handlers be bind to
+const kb = createKeyBus(document);
 
-const kb = new KeyBus(document)
-
-let enterKeydownHandler = kb.down(13, () => console.log('Enter keydown!'))
+const enterKeydownHandler = kb.down(13, () => console.log('Enter keydown!'));
 
 // to remove the keydown event handler for a specific key and event
-enterKeydownHandler.remove()
+enterKeydownHandler.remove();
 ```
 
 APIs:
@@ -35,8 +35,8 @@ The stackoverflow post above shows a way to solve this problem, by using a hash 
 However, with KeyBus, you could do this:
 
 ```js
-var canvas = document.getElementById('my-canvas')
-var kb = new KeyBus(canvas)
+const canvas = document.getElementById('my-canvas')
+const kb = createKeyBus(canvas)
 
 kb.simulDown(38, () => console.log('up'))
 kb.simulDown(39, () => console.log('right'))

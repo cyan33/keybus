@@ -1,6 +1,6 @@
 {
   "name": "keybus",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Support simultaneous multi-keypress handler. Especially useful in game development on browser.",
   "main": "index.js",
   "scripts": {
