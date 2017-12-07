@@ -1,107 +1,107 @@
 function createKeyBus(target) {
-  const simulDownListeners = {}
-  let enableMultiKey = false
-  const keyhash = null
+  const simulDownListeners = {};
+  let isMultiKey = false;
+  let keyhash = null;
 
-  if (!target instanceof HTMLElement) {
-    throw Error('KeyBus: target must be a DOM element.')
+  if (!(target instanceof HTMLElement)) {
+    throw Error('KeyBus: target must be a DOM element.');
   }
 
   function enableMultiKey() {
-    enableMultiKey = true
-    keyhash = {}
+    isMultiKey = true;
+    keyhash = {};
   }
 
   function disableMultiKey() {
-    enableMultiKey = false
-    keyhash = null
+    isMultiKey = false;
+    keyhash = null;
   }
 
   function getKeyhash() {
-    return enableMultiKey ? keyhash : null
+    return isMultiKey ? keyhash : null;
   }
 
   function down(keyCode, cb) {
-    if (enableMultiKey) {
-      throw Error('multikey handlers should not use the "down" method of KeyBus')
-      return
+    if (isMultiKey) {
+      throw Error('multikey handlers should not use the "down" method of KeyBus');
+      return;
     }
 
     function keydownHandler(e) {
       if (e.keyCode === keyCode) {
-        e.preventDefault()
-        cb(e)
+        e.preventDefault();
+        cb(e);
       }
     }
 
-    target.addEventListener('keydown', keydownHandler)
+    target.addEventListener('keydown', keydownHandler);
     
     return {
       remove() {
-        target.removeEventListener('keydown', keydownHandler)
+        target.removeEventListener('keydown', keydownHandler);
       }
-    }
+    };
   }
 
-  up(keyCode, cb) {
-    if (enableMultiKey) {
-      throw Error('multikey handlers should not use the "on" method of KeyBus')
-      return
+  function up(keyCode, cb) {
+    if (isMultiKey) {
+      throw Error('multikey handlers should not use the "on" method of KeyBus');
+      return;
     }
 
     function keyupHandler(e) {
       if (e.keyCode === keyCode) {
-        e.preventDefault()
-        cb(e)
+        e.preventDefault();
+        cb(e);
       }
     }
 
-    target.addEventListener('keyup', keyupHandler)
+    target.addEventListener('keyup', keyupHandler);
 
     return {
       remove() {
-        target.removeEventListener('keyup', keyupHandler)
+        target.removeEventListener('keyup', keyupHandler);
       }
-    }
+    };
   }
 
   function simulDown(keyCode, cb) {
     simulDownListeners[keyCode] ? simulDownListeners[keyCode] = [cb] 
-      : simulDownListeners[keyCode].push(cb)
+      : simulDownListeners[keyCode].push(cb);
 
     function updateKeyhash(e, val) {
       if (e.keyCode === keyCode) {
-        e.preventDefault()
-        keyhash[keyCode] = val
+        e.preventDefault();
+        keyhash[keyCode] = val;
       }
     }
 
-    const keydownUpdate = (e) => updateKeyhash(e, true)
-    const keyupUpdate = (e) => updateKeyhash(e, false)
+    const keydownUpdate = (e) => updateKeyhash(e, true);
+    const keyupUpdate = (e) => updateKeyhash(e, false);
 
 
-    target.addEventListener('keydown', keydownUpdate)
-    target.addEventListener('keyup', keyupUpdate)
+    target.addEventListener('keydown', keydownUpdate);
+    target.addEventListener('keyup', keyupUpdate);
 
     return {
       remove() {
-        simulDownListeners[keyCode].splice(simulDownListeners[keyCode].indexOf(cb), 1)
+        simulDownListeners[keyCode].splice(simulDownListeners[keyCode].indexOf(cb), 1);
 
-        target.removeEventListener('keydown', keydownUpdate)
-        target.removeEventListener('keyup', keyupUpdate)
+        target.removeEventListener('keydown', keydownUpdate);
+        target.removeEventListener('keyup', keyupUpdate);
       }
-    }
+    };
   }
 
   function executeMultiKeyHandlers() {
     for (let key in simulDownListeners) {
       if (keyhash[key]) {
         simulDownListeners[key].forEach(cb => {
-          cb()
-        })
+          cb();
+        });
       }
     }
   }
 }
 
-module.exports = createKeyBus
+module.exports = createKeyBus;
